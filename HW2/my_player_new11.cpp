@@ -46,6 +46,54 @@ public:
 		return friendlyNeighbors;
 	}
 
+	pair<bool, int> findRhombus(vector<vector<int> > board, int x, int y)
+	{
+		// cout<<x<<" "<<y<<endl;
+		vector<pair<int, int> > rhombus;
+		int playerVal = -1;
+		if(x-1>=0)
+		{
+			playerVal = board[x-1][y];
+		}
+		if(y-1>=0)
+		{
+			if(playerVal == -1)
+			{
+				playerVal = board[x][y-1];
+			}
+			else
+			{
+				if(board[x][y-1]!=playerVal)
+					return make_pair(false, -1);
+			}
+		}
+		if(x+1<boardSize)
+		{
+			if(playerVal == -1)
+			{
+				playerVal = board[x+1][y];
+			}
+			else
+			{
+				if(board[x+1][y]!=playerVal)
+					return make_pair(false, -1);
+			}
+		}
+		if(y+1<boardSize)
+		{
+			if(playerVal == -1)
+			{
+				playerVal = board[x][y+1];
+			}
+			else
+			{
+				if(board[x][y+1]!=playerVal)
+					return make_pair(false, -1);
+			}
+		}
+		// cout<<"true, "<<playerVal<<endl;
+		return make_pair(true, playerVal);
+	}
 
 	vector<pair<int, int > > dfsFriendlyConnections(vector<vector<int> > board, int x, int y)
 	{
@@ -360,20 +408,24 @@ public:
 
 	;
 
-	pair<double, pair<int, int> > evaluation(vector<vector<int> > board, int player)
+	pair<double, pair<int, int> > evaluation(vector<vector<int> > board, int player, int moveNumber)
 	{
 		// visualizeBoard(board);
 		int totalBlackStones=0, totalWhiteStones=0, edgeBlackStones=0, edgeWhiteStones = 0;
 		int whiteStonesWithLowLiberty = 0, blackStonesWithLowLiberty=0, cornerBlackStones=0, cornerWhiteStones=0;
 		int endangeredLibertyBlack = 0, endangeredLibertyWhite = 0;
 		int numberOfDeadWhite = 0, numberOfDeadBlack = 0;
+		int whiteRhombus = 0, blackRhombus = 0;
+		int whiteKite = 0, blackKite = 0;
+
 		for(int i=0;i<boardSize;i++)
 		{
 			for(int j=0;j<boardSize;j++)
 			{
+				
+
 				if(board[i][j]==1)
 				{
-
 					// corner stones
 					if((i==0 && j==0 )||(i==0 && j==4 )||(i==4 && j==0 )||(i==4 && j==4 ))
 					{
@@ -444,6 +496,17 @@ public:
 				}
 				else
 				{
+					pair<bool, int> rhombus = findRhombus(board, i, j);
+					if(rhombus.first)
+					{
+						if(rhombus.second == 1)
+						{
+							blackRhombus ++;
+						}
+						else
+							whiteRhombus++;
+					}
+
 					if(originalBoard[i][j] == 1) numberOfDeadBlack++;
 					if(originalBoard[i][j] == 2) numberOfDeadWhite++;
 						
@@ -451,36 +514,56 @@ public:
 			}
 		}
 
-		cout<<" white: "<<endangeredLibertyWhite<<" black: "<<endangeredLibertyBlack<<endl;
+		// cout<<" white: "<<numberOfDeadWhite<<" black: "<<numberOfDeadBlack<<endl;
 		int whiteScore = 0;
 		int blackScore = totalBlackStones ;
 
 		whiteScore = totalWhiteStones + 1;
 		double eval_value;
+
+
+		int cornerBlackStonesMultiplier = 5;
+		int edgeBlackStonesMultiplier = 2;
+		int cornerWhiteStonesMultiplier = 5;
+		int edgeWhiteStonesMultiplier = 2;	
+		if(moveNumber > 22 )
+		{
+			cornerBlackStonesMultiplier = 2;
+			edgeBlackStonesMultiplier = 1;
+			cornerWhiteStonesMultiplier = 2;
+			edgeWhiteStonesMultiplier = 1;			
+		}
+
 		if(player == 1)
 		{
-			eval_value = (blackScore + blackStonesWithLowLiberty) - (whiteScore + whiteStonesWithLowLiberty*2) + 10 * endangeredLibertyBlack - 16 * endangeredLibertyWhite - double(cornerBlackStones) * 5 - double(edgeBlackStones) * 2;
+			eval_value = (blackScore + blackStonesWithLowLiberty) - (whiteScore + whiteStonesWithLowLiberty*2) - double(cornerBlackStones) * cornerBlackStonesMultiplier - double(edgeBlackStones) * edgeBlackStonesMultiplier  + 5 * blackRhombus + (numberOfDeadWhite - numberOfDeadBlack) * 8;
+
+			// eval_value = (blackScore + blackStonesWithLowLiberty) - (whiteScore + whiteStonesWithLowLiberty*2) + 10 * endangeredLibertyBlack - 16 * endangeredLibertyWhite - double(cornerBlackStones) * 5 - double(edgeBlackStones) * 2  + 5 * blackRhombus;
+			// eval_value = (blackScore + blackStonesWithLowLiberty) - (whiteScore + whiteStonesWithLowLiberty*2) + 10 * endangeredLibertyBlack - 16 * endangeredLibertyWhite - double(cornerBlackStones) * 5 - double(edgeBlackStones) * 2;
 			// eval_value = 0.8 * double(double(blackScore) - double(whiteScore)) + 4*(blackStonesWithLowLiberty - whiteStonesWithLowLiberty)  - double(cornerBlackStones) * 0.8 - double(edgeBlackStones) * 0.2 + numberOfDeadWhite * 15 - numberOfDeadBlack * 5;
 		}
 		else if(player==2) 
 		{
-			eval_value = (whiteScore + whiteStonesWithLowLiberty) - (blackScore + blackStonesWithLowLiberty*2) + 10 * endangeredLibertyWhite - 16 * endangeredLibertyBlack - double(cornerWhiteStones) * 5 - double(edgeWhiteStones) * 2;
+			eval_value = (whiteScore + whiteStonesWithLowLiberty) - (blackScore + blackStonesWithLowLiberty*2) - double(cornerWhiteStones) * cornerWhiteStonesMultiplier - double(edgeWhiteStones) * edgeWhiteStonesMultiplier + 5 * whiteRhombus + (numberOfDeadBlack - numberOfDeadWhite) * 8;
 			
 			// eval_value = 0.8 * double(double(whiteScore - blackScore)) + 4*(whiteStonesWithLowLiberty - blackStonesWithLowLiberty)  - double(cornerWhiteStones) * 0.8 - double(edgeWhiteStones) * 0.2 +  numberOfDeadBlack * 15 - numberOfDeadBlack*5;
 		}
 		pair<int, int> p;
+		// cout<<eval_value<<" " <<blackRhombus<<" "<<whiteRhombus<<endl;
+		// if(eval_value==-43)
 		// cout<<"eval: "<<eval_value<<endl;
+		// visualizeBoard(board);
 		if(originalPlayer != player) eval_value *= -1;
 		return make_pair(eval_value, p);
 
 	}
 
 
-	pair<double, pair<int, int> > minPlayerMove(vector<vector<int> > board, int player, int depth, double alphaValue, double betaValue)
+	pair<double, pair<int, int> > minPlayerMove(vector<vector<int> > board, int player, int depth, double alphaValue, double betaValue, int moveNumber)
 	{
 		if(depth==0)
 		{
-			return evaluation(board, player);
+			return evaluation(board, player, moveNumber);
 		}
 		vector<pair<int, int> > allValidMoves = getAllValidMoves(player, board);
 
@@ -510,7 +593,7 @@ public:
 				remStones = removePossiblyDeadStones(3-player, temporaryBoard);
 				if(remStones.second)
 					temporaryBoard = remStones.first;
-				pair<double, pair<int, int> > maxPlayerScore = maxPlayerMove(temporaryBoard, 3-player, depth-1, alphaValue, betaValue);
+				pair<double, pair<int, int> > maxPlayerScore = maxPlayerMove(temporaryBoard, 3-player, depth-1, alphaValue, betaValue, moveNumber+1);
 
 
 
@@ -535,11 +618,11 @@ public:
 		
 	}
 
-	pair<double, pair<int, int> > maxPlayerMove(vector<vector<int> > board, int player, int depth, double alphaValue, double betaValue)
+	pair<double, pair<int, int> > maxPlayerMove(vector<vector<int> > board, int player, int depth, double alphaValue, double betaValue, int moveNumber)
 	{
 		if(depth==0)
 		{
-			return evaluation(board, player);
+			return evaluation(board, player, moveNumber);
 		}
 		vector<pair<int, int> > allValidMoves = getAllValidMoves(player, board);
 
@@ -569,7 +652,7 @@ public:
 					temporaryBoard = remStones.first;
 				// if(depth==4)
 				// 	cout<<"removed stones for player: "<<3-player<<" at depth: "<<depth<<" : "<<remStones.second<<endl;
-				pair<double, pair<int, int> > minPlayerScore = minPlayerMove(temporaryBoard, 3-player, depth-1, alphaValue, betaValue);
+				pair<double, pair<int, int> > minPlayerScore = minPlayerMove(temporaryBoard, 3-player, depth-1, alphaValue, betaValue, moveNumber+1);
 
 				// if(depth==4)
 				// cout<<"opponent player would place "<<3-player<<" at "<<minPlayerScore.second.first<<" "<<minPlayerScore.second.second<<" if we place "<<player<<" at "<<allValidMoves[i].first<<" "<<allValidMoves[i].second<<" with score: "<<minPlayerScore.first<<endl;
@@ -676,10 +759,63 @@ int main()
 	instanceOfGo.board = currentBoardState;
 	originalBoard = instanceOfGo.board;
 	instanceOfGo.previousBoard = previousBoardState;
+
+
+
+	/*** Trying to add the moveNumber File ***/
+	int moveNumber;
+	int countZero = 0;
+	for(int i=0;i<boardSize;i++)
+	{
+		for(int j=0;j<boardSize;j++)
+		{
+			if(currentBoardState[i][j] == 0)
+				countZero++;
+		}
+	}
+	if(countZero == 25)
+	{
+		moveNumber = 1;
+		ofstream moveFile;
+		moveFile.open("moveNumberFile.txt");
+		moveFile<<to_string(moveNumber);
+		moveFile.close();
+	}
+	else if(countZero == 24)
+	{
+		moveNumber = 2;
+		ofstream moveFile;
+		moveFile.open("moveNumberFile.txt");
+		moveFile<<to_string(moveNumber);
+		moveFile.close();
+	}
+	else
+	{
+		ifstream moveNumInputFile("moveNumberFile.txt");
+		string moveNumString;
+		while(getline(moveNumInputFile, line))
+		{
+			moveNumString = line;
+		}
+		moveNumber = stoi(moveNumString);
+
+	}
+
+	if(moveNumber >= 22) 
+		depth = 25 - moveNumber;
+
 	// int depth = 5;
 	double alphaValue = INT_MIN;
 	double betaValue = INT_MAX;
-	ans = instanceOfGo.maxPlayerMove(instanceOfGo.board, player, depth, alphaValue, betaValue);
+	ans = instanceOfGo.maxPlayerMove(instanceOfGo.board, player, depth, alphaValue, betaValue, moveNumber);
+
+
+
+
+	ofstream moveFile;
+	moveFile.open("moveNumberFile.txt");
+	moveFile<<to_string(moveNumber + 2);
+	moveFile.close();
 
 	ofstream oFile;
 	oFile.open("output.txt");
