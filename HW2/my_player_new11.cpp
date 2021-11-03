@@ -48,7 +48,6 @@ public:
 
 	pair<bool, int> findRhombus(vector<vector<int> > board, int x, int y)
 	{
-		// cout<<x<<" "<<y<<endl;
 		vector<pair<int, int> > rhombus;
 		int playerVal = -1;
 		if(x-1>=0)
@@ -91,7 +90,6 @@ public:
 					return make_pair(false, -1);
 			}
 		}
-		// cout<<"true, "<<playerVal<<endl;
 		return make_pair(true, playerVal);
 	}
 
@@ -129,14 +127,11 @@ public:
 
 	bool libertyFound(vector<vector<int> > board, int x, int y)
 	{
-		// vector<pair<int, int> > friendlyNeighbors = friendlyStones(board, x, y);
 		vector<pair<int, int> > friendlyConnectedComponentMembers =  dfsFriendlyConnections(board, x, y);
-		// cout<<"FNCCM Size: "<<friendlyConnectedComponentMembers.size()<<" for "<<x<<" "<<y<<endl;
 		for(int i=0;i<friendlyConnectedComponentMembers.size();i++)
 		{
 			int xCoordinate = friendlyConnectedComponentMembers[i].first;
 			int yCoordinate = friendlyConnectedComponentMembers[i].second;
-			// cout<<xCoordinate<<" "<<yCoordinate<<" is an FNCCM"<<endl;
 
 			if( (xCoordinate - 1 >=0 && board[xCoordinate-1][yCoordinate]==0) || (xCoordinate + 1 <boardSize && board[xCoordinate+1][yCoordinate]==0) || (yCoordinate - 1 >=0 && board[xCoordinate][yCoordinate-1]==0) || (yCoordinate + 1 <boardSize && board[xCoordinate][yCoordinate+1]==0))
 			{
@@ -152,10 +147,8 @@ public:
 
 	pair<bool, vector<pair<int, int> > > totalLibertyForXY(vector<vector<int> > board, int x, int y)
 	{
-		// vector<pair<int, int> > friendlyNeighbors = friendlyStones(board, x, y);
 		vector<pair<int, int> > friendlyConnectedComponentMembers =  dfsFriendlyConnections(board, x, y);
-		// cout<<friendlyConnectedComponentMembers.size()<<endl;
-		// cout<<"FNCCM Size: "<<friendlyConnectedComponentMembers.size()<<" for "<<x<<" "<<y<<endl;
+		
 		vector<pair<int, int> > libertyPositionsForXY;
 		bool flag = false;
 		int visited[5][5];
@@ -204,46 +197,12 @@ public:
 
 	bool isKORuleViolated(vector<vector<int> > board, int x, int y, bool isAnyStoneRemoved, vector<vector<int> > previousBoard)
 	{
-		// cout<<"inside KO violation function"<<endl;
-		// cout<<"was stone removed : " << isAnyStoneRemoved<<endl;
+
 		if(board == this->previousBoard && isAnyStoneRemoved)
 		{
 			cout<<"Violated KO Rule!"<<endl;
 			return true;
 		}
-/*
-		cout<<"Previos Board: "<<endl;
-			for(int i=0;i<boardSize;i++)
-			{
-				for(int j=0;j<boardSize;j++)
-				{
-					if(this->previousBoard[i][j]==0)
-						cout<<"  ";
-					if(this->previousBoard[i][j]==1)
-						cout<<"X ";
-					if(this->previousBoard[i][j]==2)
-						cout<<"O ";
-				}
-				cout<<endl;
-
-			}
-			cout<<"Curr Board: "<<endl;
-			for(int i=0;i<boardSize;i++)
-			{
-				for(int j=0;j<boardSize;j++)
-				{
-					if(this->board[i][j]==0)
-						cout<<"  ";
-					if(this->board[i][j]==1)
-						cout<<"X ";
-					if(this->board[i][j]==2)
-						cout<<"O ";
-				}
-				cout<<endl;
-*/
-			// }
-
-
 
 		return false;
 	}
@@ -261,7 +220,7 @@ public:
 					// board[i][j] = 0;
 				}
 				// else if(board[i][j]==player){
-				// 	// cout<<"found liberty for "<<i<<" "<<j<<endl;
+				// cout<<"found liberty for "<<i<<" "<<j<<endl;
 				// }
 			}
 		}
@@ -271,28 +230,9 @@ public:
 		// this->board = board;
 		for(auto& stoneCoordinates:removedStones)
 		{
-			// cout<<"removing stone: "<<stoneCoordinates.first<<" "<<stoneCoordinates.second<<endl;
 			board[stoneCoordinates.first][stoneCoordinates.second] = 0;
 		} 
-/*
 
-		cout<<"Temp Board after removing stones: "<<endl;
-			for(int i=0;i<boardSize;i++)
-			{
-				for(int j=0;j<boardSize;j++)
-				{
-					if(board[i][j]==0)
-						cout<<"  ";
-					if(board[i][j]==1)
-						cout<<"X ";
-					if(board[i][j]==2)
-						cout<<"O ";
-				}
-				cout<<endl;
-
-		// this->board = board;
-			}
-			*/
 		return make_pair(board,isAnyStoneRemoved) ;
 
 	
@@ -339,11 +279,7 @@ public:
 		return false;
 	}
 
-/**
- * 
- * 
- * 
- */
+
 	bool isPutStoneFine(int x, int y, int player, vector<vector<int> > board)
 	{
 		bool validity = isPlacementValid(x, y, player, board);
@@ -351,9 +287,6 @@ public:
 			// cout<<"INVALID MOVE"<<endl;
 			return false;
 		}
-		// need to udpate the moveNumber here??, Please check
-		
-		// cout<<endl;
 		return true;
 	}
 
@@ -447,12 +380,6 @@ public:
 							blackStonesWithLowLiberty+=libertiesForBlack.second.size();
 					}
 
-
-					// endangered Liberty
-					/*
-					if(libertiesForBlack.second.size() <= 1)
-						endangeredLibertyBlack++;
-					*/
 					if(blackStonesWithLowLiberty <= 1)
 						endangeredLibertyBlack++;
 
@@ -474,19 +401,11 @@ public:
 					}
 					pair<bool, vector<pair<int, int > > > libertiesForWhite;
 					libertiesForWhite = totalLibertyForXY(board, i, j);
-					// cout<<"liberty for "<<i<<" "<<j<<" : "<<libertiesForWhite.first<<" "<<libertiesForWhite.second.size();
 					if(libertiesForWhite.first==true)
 					{
-						// if(libertiesForWhite.second.size()==1)
-							whiteStonesWithLowLiberty+=libertiesForWhite.second.size();
+						whiteStonesWithLowLiberty+=libertiesForWhite.second.size();
 					}
 
-					//endangered Liberty
-
-					/*
-					if(libertiesForWhite.second.size() <= 1)
-						endangeredLibertyWhite++;
-					*/
 					if(whiteStonesWithLowLiberty <= 1)
 						endangeredLibertyWhite++;
 
@@ -514,7 +433,6 @@ public:
 			}
 		}
 
-		// cout<<" white: "<<numberOfDeadWhite<<" black: "<<numberOfDeadBlack<<endl;
 		int whiteScore = 0;
 		int blackScore = totalBlackStones ;
 
@@ -538,6 +456,7 @@ public:
 		{
 			eval_value = (blackScore + blackStonesWithLowLiberty) - (whiteScore + whiteStonesWithLowLiberty*2) - double(cornerBlackStones) * cornerBlackStonesMultiplier - double(edgeBlackStones) * edgeBlackStonesMultiplier  + 5 * blackRhombus + (numberOfDeadWhite - numberOfDeadBlack) * 8;
 
+			/**** Other decently working evaluations ****/
 			// eval_value = (blackScore + blackStonesWithLowLiberty) - (whiteScore + whiteStonesWithLowLiberty*2) + 10 * endangeredLibertyBlack - 16 * endangeredLibertyWhite - double(cornerBlackStones) * 5 - double(edgeBlackStones) * 2  + 5 * blackRhombus;
 			// eval_value = (blackScore + blackStonesWithLowLiberty) - (whiteScore + whiteStonesWithLowLiberty*2) + 10 * endangeredLibertyBlack - 16 * endangeredLibertyWhite - double(cornerBlackStones) * 5 - double(edgeBlackStones) * 2;
 			// eval_value = 0.8 * double(double(blackScore) - double(whiteScore)) + 4*(blackStonesWithLowLiberty - whiteStonesWithLowLiberty)  - double(cornerBlackStones) * 0.8 - double(edgeBlackStones) * 0.2 + numberOfDeadWhite * 15 - numberOfDeadBlack * 5;
@@ -545,13 +464,9 @@ public:
 		else if(player==2) 
 		{
 			eval_value = (whiteScore + whiteStonesWithLowLiberty) - (blackScore + blackStonesWithLowLiberty*2) - double(cornerWhiteStones) * cornerWhiteStonesMultiplier - double(edgeWhiteStones) * edgeWhiteStonesMultiplier + 5 * whiteRhombus + (numberOfDeadBlack - numberOfDeadWhite) * 8;
-			
-			// eval_value = 0.8 * double(double(whiteScore - blackScore)) + 4*(whiteStonesWithLowLiberty - blackStonesWithLowLiberty)  - double(cornerWhiteStones) * 0.8 - double(edgeWhiteStones) * 0.2 +  numberOfDeadBlack * 15 - numberOfDeadBlack*5;
 		}
+
 		pair<int, int> p;
-		// cout<<eval_value<<" " <<blackRhombus<<" "<<whiteRhombus<<endl;
-		// if(eval_value==-43)
-		// cout<<"eval: "<<eval_value<<endl;
 		// visualizeBoard(board);
 		if(originalPlayer != player) eval_value *= -1;
 		return make_pair(eval_value, p);
@@ -567,17 +482,8 @@ public:
 		}
 		vector<pair<int, int> > allValidMoves = getAllValidMoves(player, board);
 
-		// if(depth==4){
-		// cout<<"all valid moves for player: "<<player<<" at depth: "<<depth<<endl;
-		// for (int i = 0; i < allValidMoves.size(); i++)
-		// {
-		// 	cout<<allValidMoves[i].first<<" "<<allValidMoves[i].second<<endl;
-		// }
-		// cout<<endl;
-		// }	
-
 		if(!allValidMoves.size()){
-			// cout<<"PASS"<<endl;
+			// "PASS in this case"
 			return make_pair(INT_MIN,make_pair(INT_MIN,INT_MIN));
 		}
 
@@ -626,15 +532,6 @@ public:
 		}
 		vector<pair<int, int> > allValidMoves = getAllValidMoves(player, board);
 
-		// if(depth==4){
-		// cout<<"all valid moves for player: "<<player<<" at depth: "<<depth<<endl;
-		// for (int i = 0; i < allValidMoves.size(); i++)
-		// {
-		// 	cout<<allValidMoves[i].first<<" "<<allValidMoves[i].second<<endl;
-		// }
-		// cout<<endl;
-		// }	
-
 		if(!allValidMoves.size())
 			return make_pair(INT_MIN,make_pair(INT_MIN,INT_MIN));
 
@@ -644,22 +541,15 @@ public:
 		{
 				vector<vector<int> > temporaryBoard(boardSize, vector<int> (boardSize));
 				temporaryBoard = board;
-				// this->previousBoard = this->board;
 				temporaryBoard[allValidMoves[i].first][allValidMoves[i].second] = player;
 				pair< vector<vector<int> >, bool> remStones;
 				remStones = removePossiblyDeadStones(3-player, temporaryBoard);
 				if(remStones.second)
 					temporaryBoard = remStones.first;
-				// if(depth==4)
-				// 	cout<<"removed stones for player: "<<3-player<<" at depth: "<<depth<<" : "<<remStones.second<<endl;
+
 				pair<double, pair<int, int> > minPlayerScore = minPlayerMove(temporaryBoard, 3-player, depth-1, alphaValue, betaValue, moveNumber+1);
 
-				// if(depth==4)
-				// cout<<"opponent player would place "<<3-player<<" at "<<minPlayerScore.second.first<<" "<<minPlayerScore.second.second<<" if we place "<<player<<" at "<<allValidMoves[i].first<<" "<<allValidMoves[i].second<<" with score: "<<minPlayerScore.first<<endl;
-
-
 				// visualizeBoard();
-
 
 				if(maxScore < minPlayerScore.first){
 					maxScore = minPlayerScore.first;
@@ -691,12 +581,6 @@ int main()
 {
 	GameGo instanceOfGo;
 
-	// fstream file;
-	// file.open("input.txt", ios::in);
-	// if(file.is_open())
-	// {
-
-	// }
 	ifstream file("input.txt");
 	string line, playerString, previousStateEncoded = "", currentStateEncoded="";
 	int count = 0;
@@ -732,26 +616,6 @@ int main()
 			currentBoardState[i][j] = currentStateEncoded[i*5 + j] - '0';
 		}
 	}
-	/*
-	cout<<player<<endl;
-	for(int i=0;i<5;i++)
-	{
-		for(int j=0;j<5;j++)
-		{
-			cout<<previousBoardState[i][j]<<" ";
-		}
-		cout<<endl;
-	}
-
-	for(int i=0;i<5;i++)
-	{
-		for(int j=0;j<5;j++)
-		{
-			cout<<currentBoardState[i][j]<<" ";
-		}
-		cout<<endl;
-	}
-	*/
 
 
 	int depth = 4;
@@ -762,7 +626,7 @@ int main()
 
 
 
-	/*** Trying to add the moveNumber File ***/
+	/*** adding the moveNumber File ***/
 	int moveNumber;
 	int countZero = 0;
 	for(int i=0;i<boardSize;i++)
@@ -829,6 +693,10 @@ int main()
 	oFile.close();
 	return 0;
 	
+
+
+	/***** Initial code for local checks of game rules ******/
+
 	// cout<<ans.first<<" ("<<ans.second.first<<" "<<ans.second.second<<endl;
 	// freopen('input.txt', "r");
 	// string playerString;
